@@ -1,20 +1,23 @@
 import sys
+
 if not sys.platform.startswith("linux"):
-	from pycaw.pycaw import AudioUtilities
+    from pycaw.pycaw import AudioUtilities
 else:
-	import pulsectl
+    import pulsectl
 
 import paho.mqtt.client as mqtt
 from multiprocessing import Process
 import time
 
-ignoreList = ["Battle.net.exe", "AudioRelay.exe", "Steam.exe", "RAVCpl64.exe", "ShellExperienceHost.exe", "cef_browser_process.exe",
+ignoreList = ["Battle.net.exe", "AudioRelay.exe", "Steam.exe", "RAVCpl64.exe", "ShellExperienceHost.exe",
+              "cef_browser_process.exe",
               "taskhostw.exe", "AMDRSServ.exe", "RadeonSoftware.exe", "explorer.exe", "Telegram.exe", "PeopleApp.exe"]
 
 client = mqtt.Client()
 
 if sys.platform.startswith("linux"):
     pulse = pulsectl.Pulse('audio')
+
 
 def getSessionsWindows():
     sessionsAll = AudioUtilities.GetAllSessions()
@@ -30,6 +33,7 @@ def getSessionsWindows():
                     sessions.append(session1)
 
     return sessions
+
 
 def getSessionsLinux():
     sessions = pulse.sink_input_list()
@@ -110,7 +114,11 @@ def publishProcess():
                 processList.append(session.proplist["application.name"])
 
         publishString = ""
-        for i in range(0, len(processList)):
+        processCount = len(processList)
+        if processCount >= 3:
+            processCount = 3
+
+        for i in range(0, processCount):
             processName = processList[i][0:3]
             publishString = publishString + processName + "/"
 
@@ -133,4 +141,4 @@ if __name__ == "__main__":
             print(session.proplist["application.name"])
 
     publishProcess()
-    #client.loop_forever(timeout=1.0, max_packets=1, retry_first_connection=True)
+    # client.loop_forever(timeout=1.0, max_packets=1, retry_first_connection=True)
