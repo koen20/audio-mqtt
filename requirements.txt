@@ -1,0 +1,6 @@
+comtypes==1.1.10
+enum34==1.1.10
+future==0.18.2
+paho-mqtt==1.5.1
+psutil==5.8.0
+pycaw==20181226
